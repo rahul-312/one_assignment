@@ -1,59 +1,85 @@
-// components/auth/Login/index.tsx
 import React, { useState } from "react";
+import Image from "next/image";
+import authService from "@/services/authService";
+import { useRouter } from "next/router";
 
 const Login: React.FC = () => {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
 
-    // Replace this with real auth call
-    console.log("Logging in with:", { email, password });
-
-    // Reset fields
-    setEmail("");
-    setPassword("");
+    try {
+      const res = await authService.login({ email, password });
+      console.log(res.message);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setErrorMsg(err.message || "Login failed");
+    }
   };
 
   return (
-    <form
-      onSubmit={handleLogin}
-      className="w-full max-w-md mx-auto bg-white shadow-md rounded-lg p-8"
-    >
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Admin Login
-      </h2>
+    <div className="flex items-center justify-center min-h-screen px-4 md:px-20 bg-[#368bb3]">
+      <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden w-full shadow-lg">
+        {/* Left Side Image */}
+        <div className="relative hidden md:block w-1/2">
+          <Image
+            src="/assets/images/thar.svg"
+            alt="Login side image"
+            fill
+            className="scale-x-[-1]"
+            priority
+          />
+        </div>
 
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-1">Email</label>
-        <input
-          type="email"
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        {/* Right Side Form */}
+        <div className="w-full md:w-1/2 p-8">
+          <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
+            Admin Login
+          </h2>
+
+          {errorMsg && (
+            <p className="text-red-600 text-sm text-center mb-4">{errorMsg}</p>
+          )}
+
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            >
+              Log In
+            </button>
+          </form>
+        </div>
       </div>
-
-      <div className="mb-6">
-        <label className="block text-gray-700 mb-1">Password</label>
-        <input
-          type="password"
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-      >
-        Log In
-      </button>
-    </form>
+    </div>
   );
 };
 

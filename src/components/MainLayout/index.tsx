@@ -16,7 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <div className={`min-h-screen ${shouldHideNavbar ? "bg-white" : "bg-gray-50"}`}>
       {/* Conditionally render navbar */}
       {!shouldHideNavbar && (
-        <div className="fixed top-4 left-0 right-0 z-50 px-10">
+        <div className="fixed top-4 left-0 right-0 z-50 px-40">
           <Navbar />
         </div>
       )}
