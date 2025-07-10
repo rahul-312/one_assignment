@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import authService from "@/services/authService";
+import Cookies from "js-cookie";
 import { useRouter } from "next/router";
+import authService from "@/services/authService";
+import Button from "@/utils/Button";
 
 const Login: React.FC = () => {
   const router = useRouter();
@@ -10,18 +12,25 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  useEffect(() => {
+    const token = Cookies.get("access_token");
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
     try {
       const res = await authService.login({ email, password });
-      console.log(res.message);
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (err: any) {
       setErrorMsg(err.message || "Login failed");
     }
   };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 md:px-20 bg-[#368bb3]">
@@ -70,12 +79,12 @@ const Login: React.FC = () => {
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
             >
               Log In
-            </button>
+            </Button>
           </form>
         </div>
       </div>

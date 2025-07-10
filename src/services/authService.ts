@@ -1,16 +1,6 @@
-// services/authService.ts
 import axios from "axios";
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface TokenResponse {
-  access: string;
-  refresh: string;
-  message: string;
-}
+import Cookies from "js-cookie";
+import { LoginCredentials, TokenResponse } from "@/models/Login";
 
 class AuthService {
   private baseUrl: string;
@@ -23,10 +13,8 @@ class AuthService {
     try {
       const response = await axios.post(`${this.baseUrl}/login/`, credentials);
       const { access, refresh, message } = response.data;
-
-      // Store tokens locally (for protected API usage later)
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
+      Cookies.set("access_token", access, { expires: 1 }); // 1 day
+      Cookies.set("refresh_token", refresh, { expires: 7 }); // 7 days
 
       return { access, refresh, message };
     } catch (error: any) {
@@ -38,13 +26,30 @@ class AuthService {
     }
   }
 
-  logout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+  async refreshToken(): Promise<string> {
+    const refresh = Cookies.get("refresh_token");
+    if (!refresh) throw new Error("No refresh token");
+
+    try {
+      const response = await axios.post(`${this.baseUrl}/token/refresh/`, {
+        refresh,
+      });
+      const newAccess = response.data.access;
+      Cookies.set("access_token", newAccess, { expires: 1 });
+      return newAccess;
+    } catch (error) {
+      this.logout();
+      throw new Error("Session expired. Please login again.");
+    }
   }
 
-  getAccessToken(): string | null {
-    return localStorage.getItem("access_token");
+  logout() {
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+  }
+
+  getAccessToken(): string | undefined {
+    return Cookies.get("access_token");
   }
 }
 

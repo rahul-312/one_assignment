@@ -1,21 +1,17 @@
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 
 const LandingPage: React.FC = () => {
   return (
-    <main className="relative min-h-screen w-full overflow-hidden">
-      {/* Background Image */}
+    <main className="relative min-h-screen w-full">
       <Image
-        src="/assets/images/car.svg"
+        src="/assets/images/car.png"
         alt="Car background"
         fill
         priority
-        className="object-cover z-0"
+        className="z-0"
       />
-
-      {/* Overlay Content */}
-      <div className="absolute inset-0 z-10 mt-10 flex flex-col items-center px-4 text-center text-white">
+      <div className="absolute inset-0 z-10 mt-10 flex flex-col items-center text-center text-white">
         <h1 className="text-4xl mt-20 font-bold mb-4">
           Welcome to CarRental Admin Dashboard
         </h1>

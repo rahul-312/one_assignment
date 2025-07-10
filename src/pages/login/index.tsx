@@ -1,4 +1,3 @@
-// pages/login/index.tsx
 import React from "react";
 import Login from "@/components/auth/Login";
 
