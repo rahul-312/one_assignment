@@ -42,13 +42,16 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-        className={`shadow-md rounded-xl transition-all duration-300 ${
+        className={`shadow-md transition-all duration-300 ${
           isLoggedIn ? "backdrop-blur-md bg-gray-300/70" : "bg-gray-300"
         }`}
       >
       <div className="w-full p-4 pr-10 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-gray-800">
-          CarRental Admin
+        <Link
+          href={isLoggedIn ? "/dashboard" : "/"}
+          className="text-xl font-bold text-gray-800"
+        >
+          CarRental Admin Panel
         </Link>
 
         {!isLoggedIn ? (

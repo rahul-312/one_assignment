@@ -1,4 +1,3 @@
-// components/Dashboard/Table.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import {
   useReactTable,
@@ -11,6 +10,8 @@ import listingService, {
   ListingUpdatePayload,
 } from "@/services/listingService";
 import EditListingModal from "./EditListingModal";
+import { CheckCircle, XCircle, Pencil } from "lucide-react";
+import Button from "@/utils/Button";
 
 const PAGE_SIZE = 10;
 
@@ -18,6 +19,7 @@ const Table: React.FC = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "pending" | "rejected">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
@@ -25,7 +27,7 @@ const Table: React.FC = () => {
   const fetchListings = async (page = 1) => {
     try {
       setLoading(true);
-      const data = await listingService.getListings(page, PAGE_SIZE);
+      const data = await listingService.getListings(page, PAGE_SIZE, statusFilter);
       setListings(data.results);
       setTotalCount(data.count);
     } catch (err: any) {
@@ -37,7 +39,7 @@ const Table: React.FC = () => {
 
   useEffect(() => {
     fetchListings(currentPage);
-  }, [currentPage]);
+  }, [currentPage, statusFilter]);
 
   const handleStatusChange = async (
     id: number,
@@ -94,29 +96,40 @@ const Table: React.FC = () => {
       },
     },
     {
+      accessorKey: "updated_at",
+      header: "Updated At",
+      cell: (info) => {
+        const raw = info.getValue();
+        return raw ? new Date(raw as string).toLocaleString() : "—";
+      },
+    },
+    {
       header: "Actions",
       cell: ({ row }) => {
         const id = row.original.id;
         return (
-          <div className="space-x-2">
-            <button
-              className="text-green-600 hover:underline"
+          <div className="flex justify-center gap-4">
+            <Button
+              title="Approve"
+              className="text-green-600 hover:text-green-800"
               onClick={() => handleStatusChange(id, "approved")}
             >
-              Approve
-            </button>
-            <button
-              className="text-red-600 hover:underline"
+              <CheckCircle className="w-5 h-5" />
+            </Button>
+            <Button
+              title="Reject"
+              className="text-red-600 hover:text-red-800"
               onClick={() => handleStatusChange(id, "rejected")}
             >
-              Reject
-            </button>
-            <button
-              className="text-blue-600 hover:underline"
+              <XCircle className="w-5 h-5" />
+            </Button>
+            <Button
+              title="Edit"
+              className="text-blue-600 hover:text-blue-800"
               onClick={() => handleEdit(id)}
             >
-              Edit
-            </button>
+              <Pencil className="w-5 h-5" />
+            </Button>
           </div>
         );
       },
@@ -135,7 +148,24 @@ const Table: React.FC = () => {
   if (error) return <p className="mt-20 text-center text-red-600">{error}</p>;
 
   return (
-    <div className="mt-20 px-4">
+    <div className="mt-6 px-4">
+      {/* Filter */}
+      <div className="flex justify-end mb-4">
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setCurrentPage(1);
+            setStatusFilter(e.target.value as any);
+          }}
+          className="border px-3 py-2 rounded-md text-sm"
+        >
+          <option value="all">All</option>
+          <option value="approved">Approved</option>
+          <option value="pending">Pending</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300 rounded-md shadow">
@@ -153,7 +183,7 @@ const Table: React.FC = () => {
               </tr>
             ))}
           </thead>
-          <tbody className="text-sm text-gray-600">
+          <tbody className="text-sm text-center text-gray-600">
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50">
                 {row.getVisibleCells().map((cell) => (
@@ -177,8 +207,7 @@ const Table: React.FC = () => {
           Previous
         </button>
         <span>
-          Page <strong>{currentPage}</strong> of{" "}
-          <strong>{totalPages}</strong>
+          Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
         </span>
         <button
           disabled={currentPage === totalPages}

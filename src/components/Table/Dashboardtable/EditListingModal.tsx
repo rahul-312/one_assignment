@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Listing, ListingUpdatePayload } from "@/services/listingService";
+import Button from "@/utils/Button";
 
 interface Props {
   listing: Listing;
@@ -60,15 +61,15 @@ const EditListingModal: React.FC<Props> = ({ listing, onClose, onSave }) => {
         </select>
 
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
+          <Button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
             Save
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
-// services/listingService.ts
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 export interface Listing {
   id: number;
@@ -25,48 +24,33 @@ export interface PaginatedResponse<T> {
 }
 
 class ListingService {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+  async getListings(
+  page = 1,
+  pageSize = 10,
+  status?: "approved" | "pending" | "rejected" | "all"
+): Promise<PaginatedResponse<Listing>> {
+  const params: any = { page, page_size: pageSize };
+  if (status && status !== "all") {
+    params.status = status;
   }
 
-  private getAuthHeaders() {
-    const token = localStorage.getItem("access_token");
-    return {
-      Authorization: `Bearer ${token}`,
-    };
-  }
+  const response = await axiosInstance.get(`/listings/`, { params });
+  return response.data;
+}
 
-  async getListings(page = 1, pageSize = 10): Promise<PaginatedResponse<Listing>> {
-    const response = await axios.get(`${this.baseUrl}/listings/?page=${page}&page_size=${pageSize}`, {
-      headers: this.getAuthHeaders(),
-    });
-    return response.data;
-  }
 
   async getListing(id: number): Promise<Listing> {
-    const response = await axios.get(`${this.baseUrl}/listings/${id}/`, {
-      headers: this.getAuthHeaders(),
-    });
+    const response = await axiosInstance.get(`/listings/${id}/`);
     return response.data;
   }
 
   async updateListing(id: number, payload: ListingUpdatePayload): Promise<Listing> {
-    const response = await axios.put(`${this.baseUrl}/listings/${id}/`, payload, {
-      headers: this.getAuthHeaders(),
-    });
+    const response = await axiosInstance.put(`/listings/${id}/`, payload);
     return response.data;
   }
 
   async updateStatus(id: number, status: "approved" | "rejected" | "pending"): Promise<{ message: string }> {
-    const response = await axios.patch(
-      `${this.baseUrl}/listings/${id}/status/`,
-      { status },
-      {
-        headers: this.getAuthHeaders(),
-      }
-    );
+    const response = await axiosInstance.patch(`/listings/${id}/status/`, { status });
     return response.data;
   }
 }

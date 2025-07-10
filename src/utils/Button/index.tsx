@@ -5,6 +5,7 @@ interface ButtonProps {
   onClick?: () => void
   type?: 'button' | 'submit' | 'reset'
   className?: string
+  title?: string;
 }
 
 export default function Button({
